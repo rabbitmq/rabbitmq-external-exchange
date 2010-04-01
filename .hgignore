@@ -1,0 +1,8 @@
+\.class$
+\.beam$
+~$
+(^|/)build/
+(^|/)dist/
+(^|/)deps.mk$
+(^|/).classpath$
+(^|/).project$

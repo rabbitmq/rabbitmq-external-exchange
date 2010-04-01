@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<project name="RabbitMQ External Exchange Java Example" default="build">
+
+  <property file="build.properties"/>
+
+  <path id="javac.classpath">
+    <fileset dir="../../../rabbitmq-java-client/build/dist">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <target name="build">
+    <mkdir dir="${javac.out}"/>
+    <javac destdir="${javac.out}"
+	   classpathref="javac.classpath"
+	   source="${standard.javac.source}"
+	   target="${standard.javac.target}"
+	   debug="${javac.debug}">
+      <src path="src"/>
+    </javac>
+  </target>
+
+  <target name="clean">
+    <delete dir="build"/>
+  </target>
+
+</project>

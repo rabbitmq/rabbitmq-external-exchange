@@ -40,10 +40,10 @@ stop(_State)      -> ok.
 
 start_link() ->
     XName = <<"test-exchange">>,
-    Conn = amqp_connection:start_direct_link(),
+    {ok, Conn} = amqp_connection:start(direct),
     Res = rabbit_external_exchange_driver:start_link(Conn, XName, ?MODULE, []),
 
-    Chan = amqp_connection:open_channel(Conn),
+    {ok, Chan} = amqp_connection:open_channel(Conn),
 
     #'exchange.declare_ok'{} = amqp_channel:call(Chan, #'exchange.declare'{
                                                    exchange = XName,

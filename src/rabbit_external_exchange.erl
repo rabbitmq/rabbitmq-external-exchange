@@ -32,7 +32,8 @@
 -behaviour(gen_server).
 
 -export([description/0, publish/2]).
--export([validate/1, recover/2, create/1, delete/2, add_binding/2, remove_bindings/2]).
+-export([validate/1, recover/2, create/1, delete/2, add_binding/2,
+         remove_bindings/2, assert_args_equivalence/2]).
 
 -export([start/0, stop/0, start/2, stop/1]).
 
@@ -111,6 +112,9 @@ add_binding(#exchange { name = XName }, Binding) ->
 
 remove_bindings(#exchange { name = XName }, Bindings) ->
     ok = inform("remove_bindings", XName, encode_bindings(Bindings)).
+
+assert_args_equivalence(X, Args) ->
+    rabbit_exchange:assert_args_equivalence(X, Args).
 
 %%----------------------------------------------------------------------------
 

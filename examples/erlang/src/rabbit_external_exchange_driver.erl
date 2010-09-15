@@ -39,7 +39,7 @@ start_link(Connection, BindingKey, Module, ModArgs) ->
 -record(state, {channel, ctag, module, mod_state}).
 
 init([Conn, BindingKey, Module, ModArgs]) ->
-    Chan = amqp_connection:open_channel(Conn),
+    {ok, Chan} = amqp_connection:open_channel(Conn),
     #'queue.declare_ok'{ queue = Q } =
         amqp_channel:call(Chan, #'queue.declare'{ exclusive = true,
                                                   auto_delete = true }),

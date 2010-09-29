@@ -1,3 +1,5 @@
-DEPS=rabbitmq-server rabbitmq-erlang-client
+RELEASABLE:=true
+
+DEPS:=rabbitmq-server rabbitmq-erlang-client
 
 include ../include.mk

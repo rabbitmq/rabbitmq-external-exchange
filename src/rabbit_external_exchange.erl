@@ -51,44 +51,24 @@ description() ->
     {{name, <<"ee">>},
      {description, <<"External exchange.">>}}.
 
-publish(#exchange{ name = XName = #resource{ virtual_host = VHost }},
-        Delivery = #delivery{
-          message = Message =
-              #basic_message {
-                      routing_key = Key,
-                      content = Content =
-                          #content { payload_fragments_rev = FragmentsRev }
-                     }}) ->
+publish(#exchange{ name = XName },
+        #delivery{
+          message = #basic_message {
+            routing_key = Key,
+            content = #content { payload_fragments_rev = FragmentsRev } }}) ->
     ok = inform("publish", XName, [{<<"routing_key">>, longstr, Key}],
                 iolist_to_binary(lists:reverse(FragmentsRev))),
     {Chan, _Q, CTag} = get_channel_and_queue(),
     receive
         {#'basic.deliver'{ consumer_tag = CTag, delivery_tag = AckTag },
-         #amqp_msg { props = #'P_basic' { headers = Headers },
-                     payload = Payload }} ->
+         #amqp_msg { props = #'P_basic' { headers = Headers } }} ->
             ok = amqp_channel:call(Chan, #'basic.ack'{ delivery_tag = AckTag }),
-            Message1 = Message #basic_message {
-                         content = Content #content {
-                                     payload_fragments_rev = [Payload] }},
-            Message2 = case lists:keysearch(<<"routing_key">>, 1, Headers) of
-                           false ->
-                               Message1;
-                           {value, {<<"routing_key">>, longstr, Key1}} ->
-                               Message1 #basic_message { routing_key = Key1 }
-                       end,
-            QPids = case lists:keysearch(<<"queue_names">>, 1, Headers) of
-                        false ->
-                            [];
-                        {value, {<<"queue_names">>, array, QNames1}} ->
-                            [QPid ||
-                                {longstr, QName} <- QNames1,
-                                case rabbit_amqqueue:lookup(rabbit_misc:r(VHost, queue, QName)) of
-                                    {ok, Q} -> QPid = Q#amqqueue.pid, true;
-                                    {error, not_found} -> QPid = none, false
-                                end]
-                    end,
-            rabbit_router:deliver(QPids,
-                                  Delivery #delivery { message = Message2 })
+            case lists:keysearch(<<"queue_names">>, 1, Headers) of
+                false ->
+                    [];
+                {value, {<<"queue_names">>, array, QNames}} ->
+                    [QName || {longstr, QName} <- QNames]
+            end
     end.
 
 validate(_X) -> ok.

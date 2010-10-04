@@ -93,12 +93,11 @@ start_link() ->
 init([]) ->
     #state { exchange_queues_map = dict:new() }.
 
-publish(XName, RK, Payload, State = #state { exchange_queues_map = EQM }) ->
-    QNames = case dict:find(XName, EQM) of
-                 error    -> [];
-                 {ok, Qs} -> sets:to_list(Qs)
-             end,
-    {RK, list_to_binary(lists:reverse(binary_to_list(Payload))), QNames, State}.
+publish(XName, _RK, _Payload, State = #state { exchange_queues_map = EQM }) ->
+    {case dict:find(XName, EQM) of
+         error    -> [];
+         {ok, Qs} -> sets:to_list(Qs)
+     end, State}.
 
 create(_XName, _Durable, _AutoDelete, _Args, State) ->
     State.

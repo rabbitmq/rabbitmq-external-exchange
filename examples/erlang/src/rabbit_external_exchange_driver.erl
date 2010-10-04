@@ -79,14 +79,12 @@ handle_info({#'basic.deliver'{ consumer_tag = CTag, delivery_tag = AckTag,
             {value, {<<"action">>, longstr, <<"publish">>}} ->
                 {value, {<<"routing_key">>, longstr, RoutingKey}} =
                     lists:keysearch(<<"routing_key">>, 1, Headers),
-                {RoutingKey1, Payload1, QNames, ModState2} =
+                {QNames, ModState2} =
                     Module:publish(ExchangeName, RoutingKey, Payload, ModState),
-                Headers1 = [{<<"routing_key">>, longstr, RoutingKey1},
-                            {<<"queue_names">>, array,
+                Headers1 = [{<<"queue_names">>, array,
                              [{longstr, QN} || QN <- QNames]}],
                 Method = #'basic.publish' { routing_key = ReplyTo },
-                Props1 = #'P_basic'{ headers = Headers1 },
-                Msg = #amqp_msg { props = Props1, payload = Payload1 },
+                Msg = #amqp_msg { props = #'P_basic'{ headers = Headers1 } },
                 ok = amqp_channel:cast(Chan, Method, Msg),
                 ModState2;
 

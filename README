@@ -138,17 +138,14 @@ is being published. The routing-key of the message contains the
 exchange name.
 The response to must be published to the default exchange, with the
 routing key set to the value of the "reply_to" field in the basic
-class properties received with this message. The following fields must
+class properties received with this message. The following field must
 be set in the headers of the basic class properties of the message
 sent back:
-[{"routing_key", RoutingKey :: long_string},
- {"queue_names", [QueueName :: long_string] :: array}]
-Message body: This must be set to the message body that you wish to be
-delivered.
-The routing key field allows you set the routing key which will be set
-on the message. The queue names field is an array of long_strings,
-each element being the name of a queue to which the message should be
-routed.
+[{"queue_names", [QueueName :: long_string] :: array}]
+The queue names field is an array of long_strings, each element being
+the name of a queue to which the message should be routed. The
+original message, with the original routing_key is published to the
+queue_names returned.
 
 
 Example Frameworks
@@ -160,7 +157,7 @@ framework presents the following interface:
 
 public interface ExchangeType {
 
-        PublishResult publish(String exchangeName, PublishResult result);
+        Set<String> publish(String exchangeName, byte[] body, String routingKey);
 
         void create(String exchangeName, boolean durable, boolean autoDelete,
                         Map<String, Object> arguments);
@@ -196,7 +193,7 @@ rabbit_external_exchange_type which has the following callbacks specs:
 
 -spec(init/1 :: ([any()]) -> state()).
 -spec(publish/4 :: (exchange_name(), routing_key(), payload(), state()) ->
-                        {routing_key(), payload(), [queue_name()], state()}).
+                        {[queue_name()], state()}).
 -spec(create/5 :: (exchange_name(), boolean(), boolean(), amqp_table(), state())
                   -> state()).
 -spec(delete/2 :: (exchange_name(), state()) -> state()).
@@ -209,7 +206,7 @@ rabbit_external_exchange_type behaviour in a module, and providing
 that module to the rabbit_external_exchange_driver:
 
     XName = <<"test-exchange">>,
-    Conn = amqp_connection:start_network_link(),
+    {ok, Conn} = amqp_connection:start(network),
     Res = rabbit_external_exchange_driver:start_link(Conn, XName, Module, []),
 
 The last parameter to rabbit_external_exchange_driver:start_link/4 is

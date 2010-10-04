@@ -20,17 +20,18 @@
 package com.rabbitmq.plugins.externalexchange;
 
 import java.util.Map;
+import java.util.Set;
 
 public interface ExchangeType {
 
-	PublishResult publish(String exchangeName, PublishResult result);
+        Set<String> publish(String exchangeName, byte[] body, String routingKey);
 
-	void create(String exchangeName, boolean durable, boolean autoDelete,
-			Map<String, Object> arguments);
+        void create(String exchangeName, boolean durable, boolean autoDelete,
+                        Map<String, Object> arguments);
 
-	void delete(String exchangeName);
+        void delete(String exchangeName);
 
-	void addBinding(String exchangeName, Binding binding);
+        void addBinding(String exchangeName, Binding binding);
 
-	void removeBindings(String exchangeName, Binding[] bindings);
+        void removeBindings(String exchangeName, Binding[] bindings);
 }

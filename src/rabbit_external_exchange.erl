@@ -67,7 +67,8 @@ publish(#exchange{ name = XName },
                 false ->
                     [];
                 {value, {<<"queue_names">>, array, QNames}} ->
-                    [QName || {longstr, QName} <- QNames]
+                    [rabbit_misc:r(XName, queue, QName) ||
+                        {longstr, QName} <- QNames]
             end
     end.
 
@@ -161,8 +162,8 @@ get_channel_and_queue() ->
 -record(state, { connection, channels }).
 
 init([]) ->
-    Conn = amqp_connection:start_direct_link(),
-    Chan = amqp_connection:open_channel(Conn),
+    {ok, Conn} = amqp_connection:start(direct),
+    {ok, Chan} = amqp_connection:open_channel(Conn),
     #'exchange.declare_ok'{} =
         amqp_channel:call(Chan, #'exchange.declare'{
                             exchange = ?EXCHANGE, type = <<"topic">> }),
@@ -171,7 +172,7 @@ init([]) ->
 
 handle_call({new_channel, Pid}, _From, State = #state { connection = Conn,
                                                         channels = Chans }) ->
-    Chan = amqp_connection:open_channel(Conn),
+    {ok, Chan} = amqp_connection:open_channel(Conn),
     _MRef = erlang:monitor(process, Pid),
     {reply, Chan, State #state { channels = dict:append(Pid, Chan, Chans) }};
 

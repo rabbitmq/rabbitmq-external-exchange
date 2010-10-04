@@ -104,7 +104,8 @@ public class ExampleExchangeType extends ExchangeTypeImpl implements
 
         Delivery delivery = consumer.nextDelivery();
 
-        System.out.println(new String(delivery.getBody(), "UTF-8") + " " + delivery.getEnvelope().getRoutingKey());
+        System.out.println(new String(delivery.getBody(), "UTF-8") + " "
+                + delivery.getEnvelope().getRoutingKey());
 
         chan.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
 

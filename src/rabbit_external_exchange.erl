@@ -31,7 +31,7 @@
 -behaviour(rabbit_exchange_type).
 -behaviour(gen_server).
 
--export([description/0, publish/2]).
+-export([description/0, route/2]).
 -export([validate/1, recover/2, create/1, delete/2, add_binding/2,
          remove_bindings/2, assert_args_equivalence/2]).
 
@@ -51,7 +51,7 @@ description() ->
     {{name, <<"ee">>},
      {description, <<"External exchange.">>}}.
 
-publish(#exchange{ name = XName },
+route(#exchange{ name = XName },
         #delivery{
           message = #basic_message {
             routing_key = Key,

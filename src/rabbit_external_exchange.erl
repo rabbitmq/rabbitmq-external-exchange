@@ -31,7 +31,7 @@
 -behaviour(rabbit_exchange_type).
 -behaviour(gen_server).
 
--export([description/0, publish/2]).
+-export([description/0, route/2]).
 -export([validate/1, recover/2, create/1, delete/2, add_binding/2,
          remove_bindings/2, assert_args_equivalence/2]).
 
@@ -51,44 +51,25 @@ description() ->
     {{name, <<"ee">>},
      {description, <<"External exchange.">>}}.
 
-publish(#exchange{ name = XName = #resource{ virtual_host = VHost }},
-        Delivery = #delivery{
-          message = Message =
-              #basic_message {
-                      routing_key = Key,
-                      content = Content =
-                          #content { payload_fragments_rev = FragmentsRev }
-                     }}) ->
+route(#exchange{ name = XName },
+        #delivery{
+          message = #basic_message {
+            routing_key = Key,
+            content = #content { payload_fragments_rev = FragmentsRev } }}) ->
     ok = inform("publish", XName, [{<<"routing_key">>, longstr, Key}],
                 iolist_to_binary(lists:reverse(FragmentsRev))),
     {Chan, _Q, CTag} = get_channel_and_queue(),
     receive
         {#'basic.deliver'{ consumer_tag = CTag, delivery_tag = AckTag },
-         #amqp_msg { props = #'P_basic' { headers = Headers },
-                     payload = Payload }} ->
+         #amqp_msg { props = #'P_basic' { headers = Headers } }} ->
             ok = amqp_channel:call(Chan, #'basic.ack'{ delivery_tag = AckTag }),
-            Message1 = Message #basic_message {
-                         content = Content #content {
-                                     payload_fragments_rev = [Payload] }},
-            Message2 = case lists:keysearch(<<"routing_key">>, 1, Headers) of
-                           false ->
-                               Message1;
-                           {value, {<<"routing_key">>, longstr, Key1}} ->
-                               Message1 #basic_message { routing_key = Key1 }
-                       end,
-            QPids = case lists:keysearch(<<"queue_names">>, 1, Headers) of
-                        false ->
-                            [];
-                        {value, {<<"queue_names">>, array, QNames1}} ->
-                            [QPid ||
-                                {longstr, QName} <- QNames1,
-                                case rabbit_amqqueue:lookup(rabbit_misc:r(VHost, queue, QName)) of
-                                    {ok, Q} -> QPid = Q#amqqueue.pid, true;
-                                    {error, not_found} -> QPid = none, false
-                                end]
-                    end,
-            rabbit_router:deliver(QPids,
-                                  Delivery #delivery { message = Message2 })
+            case lists:keysearch(<<"queue_names">>, 1, Headers) of
+                false ->
+                    [];
+                {value, {<<"queue_names">>, array, QNames}} ->
+                    [rabbit_misc:r(XName, queue, QName) ||
+                        {longstr, QName} <- QNames]
+            end
     end.
 
 validate(_X) -> ok.
@@ -181,8 +162,8 @@ get_channel_and_queue() ->
 -record(state, { connection, channels }).
 
 init([]) ->
-    Conn = amqp_connection:start_direct_link(),
-    Chan = amqp_connection:open_channel(Conn),
+    {ok, Conn} = amqp_connection:start(direct),
+    {ok, Chan} = amqp_connection:open_channel(Conn),
     #'exchange.declare_ok'{} =
         amqp_channel:call(Chan, #'exchange.declare'{
                             exchange = ?EXCHANGE, type = <<"topic">> }),
@@ -191,7 +172,7 @@ init([]) ->
 
 handle_call({new_channel, Pid}, _From, State = #state { connection = Conn,
                                                         channels = Chans }) ->
-    Chan = amqp_connection:open_channel(Conn),
+    {ok, Chan} = amqp_connection:open_channel(Conn),
     _MRef = erlang:monitor(process, Pid),
     {reply, Chan, State #state { channels = dict:append(Pid, Chan, Chans) }};
 

@@ -49,8 +49,8 @@
 %%----------------------------------------------------------------------------
 
 description() ->
-    {{name, <<"ee">>},
-     {description, <<"External exchange.">>}}.
+    [{name, <<"ee">>},
+     {description, <<"External exchange.">>}].
 
 route(#exchange{ name = XName },
         #delivery{

@@ -21,8 +21,9 @@
 
 -rabbit_boot_step({?MODULE,
                    [{description, "external exchange type"},
-                    {mfa, {rabbit_exchange_type_registry, register, [<<"x-ee">>, rabbit_external_exchange]}},
-                    {requires, rabbit_exchange_type_registry},
+                    {mfa, {rabbit_registry, register,
+                           [exchange, <<"x-ee">>, rabbit_external_exchange]}},
+                    {requires, rabbit_registry},
                     {enables, exchange_recovery}]}).
 
 -include_lib("rabbit_common/include/rabbit_exchange_type_spec.hrl").

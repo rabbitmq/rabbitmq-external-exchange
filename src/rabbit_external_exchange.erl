@@ -115,7 +115,7 @@ inform(ActionName, #resource { name = ExchangeName }, Headers, Payload) ->
 encode_bindings(Bindings) ->
     [{<<"bindings">>, array, [{table, encode_binding(B)} || B <- Bindings]}].
 
-encode_binding(#binding { queue_name = #resource { name = QName },
+encode_binding(#binding { destination = #resource { name = QName },
                           key = Key }) ->
     [{<<"queue_name">>, longstr, QName}, {<<"key">>, longstr, Key}].
 

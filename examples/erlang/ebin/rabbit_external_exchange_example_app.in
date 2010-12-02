@@ -1,6 +1,6 @@
 {application, rabbit_external_exchange_example,
  [{description, "RabbitMQ external exchange example"},
-  {vsn, "0.01"},
+  {vsn, "%%VSN%%"},
   {modules, [
     rabbit_external_exchange_driver,
     rabbit_external_exchange_type,

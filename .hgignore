@@ -6,3 +6,4 @@
 (^|/)deps.mk$
 (^|/).classpath$
 (^|/).project$
+^ebin/rabbit_external_exchange.app$

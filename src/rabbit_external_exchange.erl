@@ -33,8 +33,8 @@
 -behaviour(gen_server).
 
 -export([description/0, route/2]).
--export([validate/1, recover/2, create/1, delete/2, add_binding/2,
-         remove_bindings/2, assert_args_equivalence/2]).
+-export([validate/1, recover/2, create/2, delete/3, add_binding/3,
+         remove_bindings/3, assert_args_equivalence/2]).
 
 -export([start/0, stop/0, start/2, stop/1]).
 
@@ -45,6 +45,7 @@
 -define(EXCHANGE, <<"external-exchange">>).
 -define(SERVER, ?MODULE).
 -define(KEY, ?MODULE).
+-define(TX, false).
 
 %%----------------------------------------------------------------------------
 
@@ -76,23 +77,32 @@ route(#exchange{ name = XName },
 validate(_X) -> ok.
 
 recover(X, Bindings) ->
-    ok = create(X),
-    [add_binding(X, B) || B <- Bindings],
+    ok = create(?TX, X),
+    [add_binding(?TX, X, B) || B <- Bindings],
     ok.
 
-create(#exchange { name = XName, durable = Durable, auto_delete = AutoDelete,
+create(Tx, _X) when Tx =/= ?TX ->
+    ok;
+create(_Tx,
+       #exchange { name = XName, durable = Durable, auto_delete = AutoDelete,
                    arguments = Args }) ->
     ok = inform("create", XName, [{<<"durable">>,     bool,  Durable},
                                   {<<"auto_delete">>, bool,  AutoDelete},
                                   {<<"arguments">>,   table, Args}]).
 
-delete(#exchange { name = XName }, Bindings) ->
+delete(Tx, _X, _Bs) when Tx =/= ?TX ->
+    ok;
+delete(_Tx, #exchange { name = XName }, Bindings) ->
     ok = inform("delete", XName, encode_bindings(Bindings)).
 
-add_binding(#exchange { name = XName }, Binding) ->
+add_binding(Tx, _X, _B) when Tx =/= ?TX ->
+    ok;
+add_binding(_Tx, #exchange { name = XName }, Binding) ->
     ok = inform("add_binding", XName, encode_binding(Binding)).
 
-remove_bindings(#exchange { name = XName }, Bindings) ->
+remove_bindings(Tx, _X, _Bs) when Tx =/= ?TX ->
+    ok;
+remove_bindings(_Tx, #exchange { name = XName }, Bindings) ->
     ok = inform("remove_bindings", XName, encode_bindings(Bindings)).
 
 assert_args_equivalence(X, Args) ->

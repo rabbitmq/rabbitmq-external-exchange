@@ -81,29 +81,29 @@ recover(X, Bindings) ->
     [add_binding(?TX, X, B) || B <- Bindings],
     ok.
 
-create(Tx, _X) when Tx =/= ?TX ->
-    ok;
-create(_Tx,
+create(?TX,
        #exchange { name = XName, durable = Durable, auto_delete = AutoDelete,
                    arguments = Args }) ->
     ok = inform("create", XName, [{<<"durable">>,     bool,  Durable},
                                   {<<"auto_delete">>, bool,  AutoDelete},
-                                  {<<"arguments">>,   table, Args}]).
+                                  {<<"arguments">>,   table, Args}]);
+create(_Tx, _X) ->
+    ok.
 
-delete(Tx, _X, _Bs) when Tx =/= ?TX ->
-    ok;
-delete(_Tx, #exchange { name = XName }, Bindings) ->
-    ok = inform("delete", XName, encode_bindings(Bindings)).
+delete(?TX, #exchange { name = XName }, Bindings) ->
+    ok = inform("delete", XName, encode_bindings(Bindings));
+delete(_Tx, _X, _Bs) ->
+    ok.
 
-add_binding(Tx, _X, _B) when Tx =/= ?TX ->
-    ok;
-add_binding(_Tx, #exchange { name = XName }, Binding) ->
-    ok = inform("add_binding", XName, encode_binding(Binding)).
+add_binding(?TX, #exchange { name = XName }, Binding) ->
+    ok = inform("add_binding", XName, encode_binding(Binding));
+add_binding(_Tx, _X, _B) ->
+    ok.
 
-remove_bindings(Tx, _X, _Bs) when Tx =/= ?TX ->
-    ok;
-remove_bindings(_Tx, #exchange { name = XName }, Bindings) ->
-    ok = inform("remove_bindings", XName, encode_bindings(Bindings)).
+remove_bindings(?TX, #exchange { name = XName }, Bindings) ->
+    ok = inform("remove_bindings", XName, encode_bindings(Bindings));
+remove_bindings(_Tx, _X, _Bs) ->
+    ok.
 
 assert_args_equivalence(X, Args) ->
     rabbit_exchange:assert_args_equivalence(X, Args).

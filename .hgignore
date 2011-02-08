@@ -1,9 +1,10 @@
-\.class$
-\.beam$
 ~$
+\.beam$
+^build/
+^dist/
+^cover/
 (^|/)build/
 (^|/)dist/
 (^|/)deps.mk$
 (^|/).classpath$
 (^|/).project$
-^ebin/rabbit_external_exchange.app$

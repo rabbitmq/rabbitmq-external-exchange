@@ -56,9 +56,10 @@ description() ->
 route(#exchange{ name = XName },
         #delivery{
           message = #basic_message {
-            routing_key = Key,
+            routing_keys = Routes,
             content = #content { payload_fragments_rev = FragmentsRev } }}) ->
-    ok = inform("publish", XName, [{<<"routing_key">>, longstr, Key}],
+    RouteArg = [{longstr, Route} || Route <- Routes],
+    ok = inform("publish", XName, [{<<"routing_keys">>, array, RouteArg}],
                 iolist_to_binary(lists:reverse(FragmentsRev))),
     {Chan, _Q, CTag} = get_channel_and_queue(),
     receive

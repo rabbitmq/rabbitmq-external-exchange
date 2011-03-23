@@ -69,7 +69,7 @@ public class ExampleExchangeType extends ExchangeTypeImpl implements
 
     @Override
     public Set<String> publish(String exchangeName, byte[] body,
-            String routingKey) {
+            String[] routingKey) {
         return queueNames.get(exchangeName);
     }
 

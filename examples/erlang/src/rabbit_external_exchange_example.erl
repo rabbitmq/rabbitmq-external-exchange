@@ -40,7 +40,7 @@ stop(_State)      -> ok.
 
 start_link() ->
     XName = <<"test-exchange">>,
-    {ok, Conn} = amqp_connection:start(direct),
+    {ok, Conn} = amqp_connection:start(network),
     Res = rabbit_external_exchange_driver:start_link(Conn, XName, ?MODULE, []),
 
     {ok, Chan} = amqp_connection:open_channel(Conn),
@@ -72,9 +72,11 @@ start_link() ->
     receive
         #'basic.consume_ok'{ consumer_tag = Tag } ->
             receive
-                {#'basic.deliver'{ consumer_tag = Tag, delivery_tag = AckTag },
+                {#'basic.deliver'{ consumer_tag = Tag,
+                                   delivery_tag = AckTag,
+                                   routing_key  = RK },
                  #amqp_msg { payload = Payload }} ->
-                    io:format("~s~n", [binary_to_list(Payload)]),
+                    io:format("~s ~s~n", [binary_to_list(Payload), RK]),
                     ok = amqp_channel:call(Chan, #'basic.ack'{
                                              delivery_tag = AckTag })
             end

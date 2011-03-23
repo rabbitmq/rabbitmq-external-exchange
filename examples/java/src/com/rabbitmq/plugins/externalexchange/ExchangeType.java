@@ -24,7 +24,7 @@ import java.util.Set;
 
 public interface ExchangeType {
 
-    Set<String> publish(String exchangeName, byte[] body, String routingKey);
+    Set<String> publish(String exchangeName, byte[] body, String[] routingKeys);
 
     void create(String exchangeName, boolean durable, boolean autoDelete,
             Map<String, Object> arguments);

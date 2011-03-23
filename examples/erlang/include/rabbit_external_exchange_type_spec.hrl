@@ -28,7 +28,7 @@
 -type(state(), any()).
 
 -spec(init/1 :: ([any()]) -> state()).
--spec(publish/4 :: (exchange_name(), routing_key(), payload(), state()) ->
+-spec(publish/4 :: (exchange_name(), [routing_key()], payload(), state()) ->
                         {[queue_name()], state()}).
 -spec(create/5 :: (exchange_name(), boolean(), boolean(), amqp_table(), state())
                   -> state()).

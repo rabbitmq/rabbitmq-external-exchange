@@ -130,10 +130,10 @@ removed. The routing-key of the message contains the exchange name.
 
 * On publish
  [{"action",      "publish" :: long_string},
-  {"routing_key", RoutingKey :: long_string}]
+  {"routing_keys", RoutingKeys :: [long_string]}]
 Message body: This is the body of the message being published
 The client MUST respond to this message.
-The field "routing_key" indicates the routing key of the message that
+The field "routing_keys" indicates the routing keys of the message that
 is being published. The routing-key of the message contains the
 exchange name.
 The response to must be published to the default exchange, with the
@@ -144,7 +144,7 @@ sent back:
 [{"queue_names", [QueueName :: long_string] :: array}]
 The queue names field is an array of long_strings, each element being
 the name of a queue to which the message should be routed. The
-original message, with the original routing_key is published to the
+original message, with the original routing_keys is published to the
 queue_names returned.
 
 
@@ -157,7 +157,8 @@ framework presents the following interface:
 
 public interface ExchangeType {
 
-        Set<String> publish(String exchangeName, byte[] body, String routingKey);
+        Set<String> publish(String exchangeName, byte[] body,
+                        String[] routingKeys);
 
         void create(String exchangeName, boolean durable, boolean autoDelete,
                         Map<String, Object> arguments);
@@ -192,7 +193,7 @@ rabbit_external_exchange_type which has the following callbacks specs:
 -type(state(), any()).
 
 -spec(init/1 :: ([any()]) -> state()).
--spec(publish/4 :: (exchange_name(), routing_key(), payload(), state()) ->
+-spec(publish/4 :: (exchange_name(), [routing_key()], payload(), state()) ->
                         {[queue_name()], state()}).
 -spec(create/5 :: (exchange_name(), boolean(), boolean(), amqp_table(), state())
                   -> state()).

@@ -1,4 +1,5 @@
-PACKAGE:=rabbit_external_exchange_example
+PACKAGE=rabbitmq-external-exchange-example
+APPNAME=rabbit_external_exchange_example
 DEPS:=rabbitmq-server rabbitmq-erlang-client
 ROOT_DIR:=../../..
 DEPS_FILE:=deps.mk

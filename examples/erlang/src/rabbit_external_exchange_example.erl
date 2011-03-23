@@ -76,7 +76,8 @@ start_link() ->
                                    delivery_tag = AckTag,
                                    routing_key  = RK },
                  #amqp_msg { payload = Payload }} ->
-                    io:format("~s ~s~n", [binary_to_list(Payload), RK]),
+                    io:format("Msg:~s~nKey:~s~n",
+                              [binary_to_list(Payload), RK]),
                     ok = amqp_channel:call(Chan, #'basic.ack'{
                                              delivery_tag = AckTag })
             end

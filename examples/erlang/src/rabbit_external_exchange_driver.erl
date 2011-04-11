@@ -77,10 +77,10 @@ handle_info({#'basic.deliver'{ consumer_tag = CTag, delivery_tag = AckTag,
     ModState1 =
         case lists:keysearch(<<"action">>, 1, Headers) of
             {value, {<<"action">>, longstr, <<"publish">>}} ->
-                {value, {<<"routing_key">>, longstr, RoutingKey}} =
-                    lists:keysearch(<<"routing_key">>, 1, Headers),
+                {value, {<<"routing_keys">>, array, Routes}} =
+                    lists:keysearch(<<"routing_keys">>, 1, Headers),
                 {QNames, ModState2} =
-                    Module:publish(ExchangeName, RoutingKey, Payload, ModState),
+                    Module:publish(ExchangeName, Routes, Payload, ModState),
                 Headers1 = [{<<"queue_names">>, array,
                              [{longstr, QN} || QN <- QNames]}],
                 Method = #'basic.publish' { routing_key = ReplyTo },

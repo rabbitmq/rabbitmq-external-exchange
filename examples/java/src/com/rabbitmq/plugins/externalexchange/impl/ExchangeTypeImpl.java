@@ -22,6 +22,7 @@ package com.rabbitmq.plugins.externalexchange.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,6 +61,14 @@ public abstract class ExchangeTypeImpl implements Runnable, ExchangeType {
 
     private String getStringFromMap(String key, Map<String, Object> map) {
         return ((ByteArrayLongString) map.get(key)).toString();
+    }
+
+    private String [] getStringArrayFromMap(String key, Map<String, Object> map) {
+        ArrayList<String> entries = new ArrayList<String>();
+        for (Object entry : (List) map.get(key)){
+            entries.add(((ByteArrayLongString) entry).toString());
+        }
+        return entries.toArray(new String []{});
     }
 
     @SuppressWarnings("unchecked")
@@ -103,7 +112,7 @@ public abstract class ExchangeTypeImpl implements Runnable, ExchangeType {
                 } else if ("publish".equals(action)) {
                     Set<String> queueNames = publish(exchangeName, delivery
                             .getBody(),
-                            getStringFromMap("routing_key", headers));
+                            getStringArrayFromMap("routing_keys", headers));
                     String replyQueue = delivery.getProperties().getReplyTo();
                     headers = new HashMap<String, Object>();
                     if (null != queueNames && 0 < queueNames.size()) {

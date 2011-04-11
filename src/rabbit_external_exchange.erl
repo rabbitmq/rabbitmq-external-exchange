@@ -33,7 +33,7 @@
 -behaviour(gen_server).
 
 -export([description/0, route/2]).
--export([validate/1, recover/2, create/2, delete/3, add_binding/3,
+-export([validate/1, create/2, delete/3, add_binding/3,
          remove_bindings/3, assert_args_equivalence/2]).
 
 -export([start/0, stop/0, start/2, stop/1]).
@@ -56,9 +56,10 @@ description() ->
 route(#exchange{ name = XName },
         #delivery{
           message = #basic_message {
-            routing_key = Key,
+            routing_keys = Routes,
             content = #content { payload_fragments_rev = FragmentsRev } }}) ->
-    ok = inform("publish", XName, [{<<"routing_key">>, longstr, Key}],
+    RouteArg = [{longstr, Route} || Route <- Routes],
+    ok = inform("publish", XName, [{<<"routing_keys">>, array, RouteArg}],
                 iolist_to_binary(lists:reverse(FragmentsRev))),
     {Chan, _Q, CTag} = get_channel_and_queue(),
     receive
@@ -75,11 +76,6 @@ route(#exchange{ name = XName },
     end.
 
 validate(_X) -> ok.
-
-recover(X, Bindings) ->
-    ok = create(?TX, X),
-    [add_binding(?TX, X, B) || B <- Bindings],
-    ok.
 
 create(?TX,
        #exchange { name = XName, durable = Durable, auto_delete = AutoDelete,

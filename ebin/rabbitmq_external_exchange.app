@@ -1,4 +1,4 @@
-{application, rabbit_external_exchange,
+{application, rabbitmq_external_exchange,
  [{description, "RabbitMQ external exchange plugin"},
   {vsn, "%%VSN%%"},
   {modules, [

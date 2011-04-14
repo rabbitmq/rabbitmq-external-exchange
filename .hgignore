@@ -1,6 +1,9 @@
-\.class$
-\.beam$
 ~$
+\.beam$
+^build/
+^dist/
+^cover/
+^erl_crash.dump$
 (^|/)build/
 (^|/)dist/
 (^|/)deps.mk$

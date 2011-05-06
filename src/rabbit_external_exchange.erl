@@ -169,7 +169,7 @@ get_channel_and_queue() ->
 -record(state, { connection, channels }).
 
 init([]) ->
-    {ok, Conn} = amqp_connection:start(direct),
+    {ok, Conn} = amqp_connection:start(#amqp_params_direct{}),
     {ok, Chan} = amqp_connection:open_channel(Conn),
     #'exchange.declare_ok'{} =
         amqp_channel:call(Chan, #'exchange.declare'{

@@ -32,7 +32,7 @@
 -behaviour(rabbit_exchange_type).
 -behaviour(gen_server).
 
--export([description/0, route/2]).
+-export([description/0, route/2, serialise_events/1]).
 -export([validate/1, create/2, delete/3, add_binding/3,
          remove_bindings/3, assert_args_equivalence/2]).
 
@@ -45,13 +45,15 @@
 -define(EXCHANGE, <<"external-exchange">>).
 -define(SERVER, ?MODULE).
 -define(KEY, ?MODULE).
--define(TX, false).
+-define(TX, none).
 
 %%----------------------------------------------------------------------------
 
 description() ->
     [{name, <<"ee">>},
      {description, <<"External exchange.">>}].
+
+serialise_events(_X) -> false.
 
 route(#exchange{ name = XName },
         #delivery{

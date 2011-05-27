@@ -9,4 +9,3 @@
 (^|/)deps.mk$
 (^|/).classpath$
 (^|/).project$
-^ebin/rabbitmq_external_exchange.app$

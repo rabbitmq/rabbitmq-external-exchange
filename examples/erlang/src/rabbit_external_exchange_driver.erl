@@ -48,7 +48,6 @@ init([Conn, BindingKey, Module, ModArgs]) ->
                           #'queue.bind'{ queue = Q,
                                          exchange = <<"external-exchange">>,
                                          routing_key = BindingKey }),
-    #'tx.select_ok'{} = amqp_channel:call(Chan, #'tx.select'{}),
     #'basic.qos_ok'{} =
         amqp_channel:call(Chan, #'basic.qos'{ prefetch_count = 1 }),
     #'basic.consume_ok'{} =
@@ -115,7 +114,6 @@ handle_info({#'basic.deliver'{ consumer_tag = CTag, delivery_tag = AckTag,
                                        ModState)
         end,
     ok = amqp_channel:cast(Chan, #'basic.ack'{ delivery_tag = AckTag }),
-    #'tx.commit_ok'{} = amqp_channel:call(Chan, #'tx.commit'{}),
     {noreply, State #state { mod_state = ModState1 }};
 
 handle_info(Msg, State) ->

@@ -68,11 +68,9 @@ to send back. Such messages should be sent to the default (blank)
 exchange.
 
 In general it is recommended that the external exchange client
-consumes from the "external-exchange" setting QoS prefetch to 1 and
-setting transactions on the channel. The messages received by the
-external exchange client should be explicitly acknowledged, and by
-using transactions, you ensure that both the acknowledgement and any
-response are treated atomically.
+consumes from the "external-exchange" setting QoS prefetch to 1. The
+messages received by the external exchange client should be explicitly
+acknowledged.
 
 
 Encapsulation Protocol

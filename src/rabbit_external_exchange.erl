@@ -29,7 +29,7 @@
 -behaviour(gen_server).
 
 -export([description/0, route/2, serialise_events/1]).
--export([validate/1, create/2, delete/3, add_binding/3,
+-export([validate/1, create/2, delete/3, policy_changed/3, add_binding/3,
          remove_bindings/3, assert_args_equivalence/2]).
 
 -export([start/0, stop/0, start/2, stop/1]).
@@ -88,6 +88,8 @@ delete(?TX, #exchange { name = XName }, Bindings) ->
     ok = inform("delete", XName, encode_bindings(Bindings));
 delete(_Tx, _X, _Bs) ->
     ok.
+
+policy_changed(?TX, _X1, _X2) -> ok.
 
 add_binding(?TX, #exchange { name = XName }, Binding) ->
     ok = inform("add_binding", XName, encode_binding(Binding));

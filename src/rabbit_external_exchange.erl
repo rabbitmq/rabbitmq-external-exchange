@@ -28,9 +28,10 @@
 -behaviour(rabbit_exchange_type).
 -behaviour(gen_server).
 
--export([description/0, route/2, serialise_events/1]).
--export([validate/1, create/2, delete/3, policy_changed/3, add_binding/3,
-         remove_bindings/3, assert_args_equivalence/2]).
+-export([description/0, route/2, serialise_events/0]).
+-export([validate/1, validate_binding/2,
+         create/2, delete/3, policy_changed/2,
+         add_binding/3, remove_bindings/3, assert_args_equivalence/2]).
 
 -export([start/0, stop/0, start/2, stop/1]).
 
@@ -49,7 +50,7 @@ description() ->
     [{name, <<"ee">>},
      {description, <<"External exchange.">>}].
 
-serialise_events(_X) -> false.
+serialise_events() -> false.
 
 route(#exchange{ name = XName },
         #delivery{
@@ -75,6 +76,8 @@ route(#exchange{ name = XName },
 
 validate(_X) -> ok.
 
+validate_binding(_X, _B) -> ok.
+
 create(?TX,
        #exchange { name = XName, durable = Durable, auto_delete = AutoDelete,
                    arguments = Args }) ->
@@ -89,7 +92,7 @@ delete(?TX, #exchange { name = XName }, Bindings) ->
 delete(_Tx, _X, _Bs) ->
     ok.
 
-policy_changed(?TX, _X1, _X2) -> ok.
+policy_changed(_X1, _X2) -> ok.
 
 add_binding(?TX, #exchange { name = XName }, Binding) ->
     ok = inform("add_binding", XName, encode_binding(Binding));

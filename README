@@ -2,6 +2,14 @@ RabbitMQ External Exchange Plugin
 =================================
 
 
+WARNING
+-------
+
+This plugin is now unmaintained, and will probably not even compile
+against recent versions of RabbitMQ. It is left here for historical
+interest.
+
+
 Overview
 --------
 
